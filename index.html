@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>منبه الصلاة المغربي - Moroccan Prayer Alarm</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="theme-dark">
+  <div id="app" class="app-shell">
+    <!-- الشريط العلوي -->
+    <header class="top-bar">
+      <button id="btnOpenDrawer" class="icon-btn rounded-pill" aria-label="القائمة">
+        <span class="hamburger">☰</span>
+      </button>
+
+      <div class="brand-center">
+        <img id="headerTitleImg" src="assets/logo_logo.png" alt="منبه الصلاة المغربي" class="header-logo-img" onerror="this.style.display='none'; document.getElementById('headerFallbackTitle').style.display='inline-block';" />
+        <span id="headerFallbackTitle" class="header-fallback-title" style="display:none;">منبه الصلاة المغربي</span>
+      </div>
+
+      <div class="top-spacer"></div>
+    </header>
+
+    <!-- التبويبات الثلاثة -->
+    <nav class="tabs-bar" role="tablist">
+      <button class="tab-btn active" data-tab="prayers" role="tab">مواقيت الصلوات</button>
+      <button class="tab-btn" data-tab="fajrAlarm" role="tab">منبه الفجر</button>
+      <button class="tab-btn" data-tab="qiblaAdhkar" role="tab">القبلة والأذكار</button>
+    </nav>
+
+    <!-- محتوى التبويبات -->
+    <main class="main-content">
+      <!-- التبويب الأول: مواقيت الصلوات -->
+      <section id="tab-prayers" class="tab-panel active">
+        <!-- الربع العلوي: خلفية screan.png وعليها بطاقة سوداء شفافة جداً خلف العدادين فقط -->
+        <div class="hero-mosque-box">
+          <img src="assets/screan.png" alt="خلفية المسجد" class="hero-bg-img" onerror="this.classList.add('fallback-bg');" />
+          <div class="hero-overlay-counters">
+            <div class="counters-glass-pill">
+              <div class="countdown-green-wrap">
+                <div id="countdownGreenLabel" class="countdown-green-label">باقي على موعد صلاة ...</div>
+                <div id="countdownGreenValue" class="countdown-green-value">--:--:--</div>
+              </div>
+
+              <div class="countdown-red-wrap">
+                <div id="countdownRedLabel" class="countdown-red-label">انقضى من وقت صلاة ...</div>
+                <div id="countdownRedValue" class="countdown-red-value">--:--:--</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- شريط التاريخ والموقع -->
+        <div class="meta-card rounded-card">
+          <div class="meta-row">
+            <div class="city-badge">
+              <span id="currentCityLabel">الدار البيضاء</span>
+              <small id="currentModeBadge">الأوقاف المغربية (يدوي • GMT+1)</small>
+            </div>
+
+            <div class="date-controls">
+              <button id="btnDateMinus" class="mini-btn rounded-box" title="إنقاص يوم">-</button>
+              <span id="dateDisplay" class="date-text">--</span>
+              <button id="btnDatePlus" class="mini-btn rounded-box" title="زيادة يوم">+</button>
+              <button id="btnToggleCalendar" class="pill-btn rounded-pill">هجري</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- بطاقات المواقيت الستة -->
+        <div id="prayersGrid" class="prayers-grid"></div>
+
+        <!-- زر الدعاء في أقصى أسفل الشاشة الرئيسية -->
+        <div class="bottom-dua-wrap">
+          <button id="btnOpenDua" class="dua-trigger-btn rounded-pill">
+            🤲 الدعاء
+          </button>
+        </div>
+      </section>
+
+      <!-- التبويب الثاني: منبه الفجر -->
+      <section id="tab-fajrAlarm" class="tab-panel">
+        <div class="panel-card rounded-card">
+          <div class="row-between">
+            <div>
+              <h2 class="section-title">منبه صلاة الفجر</h2>
+              <p class="section-sub" id="fajrTimeInfo">وقت الفجر المحسوب: --:--</p>
+            </div>
+            <label class="switch rounded-pill">
+              <input type="checkbox" id="fajrAlarmEnabled" />
+              <span class="slider rounded-pill"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="panel-card rounded-card">
+          <h3 class="card-heading">موعد رنين المنبه</h3>
+          <div class="preset-grid" id="fajrPresets">
+            <button class="chip-btn rounded-box active" data-offset="0">عند الأذان</button>
+            <button class="chip-btn rounded-box" data-offset="-15">قبل الفجر 15 د</button>
+            <button class="chip-btn rounded-box" data-offset="-30">قبل الفجر 30 د</button>
+            <button class="chip-btn rounded-box" data-offset="-45">قبل الفجر 45 د</button>
+            <button class="chip-btn rounded-box" data-offset="-60">قبل الفجر 60 د</button>
+            <button class="chip-btn rounded-box" data-offset="custom">وقت مخصص</button>
+          </div>
+
+          <div id="customTimeBox" class="custom-time-box" style="display:none;">
+            <label for="customFajrTime">اختر الوقت يدوياً:</label>
+            <input type="time" id="customFajrTime" class="time-input rounded-box" />
+          </div>
+        </div>
+
+        <div class="panel-card rounded-card">
+          <h3 class="card-heading">مصدر الصوت</h3>
+          <div class="radio-group">
+            <label class="radio-card rounded-box">
+              <input type="radio" name="soundSource" value="app" checked />
+              <span>أصوات التطبيق</span>
+            </label>
+            <label class="radio-card rounded-box">
+              <input type="radio" name="soundSource" value="system" />
+              <span>نغمة النظام</span>
+            </label>
+            <label class="radio-card rounded-box">
+              <input type="radio" name="soundSource" value="file" />
+              <span>ملف صوتي من الجهاز</span>
+            </label>
+          </div>
+
+          <div id="appSoundsBox" class="field-block">
+            <label for="appSoundSelect">اختر الصوت:</label>
+            <select id="appSoundSelect" class="select-input rounded-box">
+              <option value="assets/salat.mp3">الصلاة يا مسلمين</option>
+              <option value="assets/allah.mp3">الله يناديك سحيرا</option>
+              <option value="assets/for_what.mp3">قل لي لماذا لا تصلي</option>
+              <option value="assets/billal.mp3">أرحنا بها يا بلال</option>
+              <option value="assets/ayah.mp3">وديع اليمني-أضاعوا الصلاة واتبعوا الشهوات</option>
+            </select>
+          </div>
+
+          <div id="systemSoundBox" class="field-block" style="display:none;">
+            <label for="systemSoundSelect">نغمة النظام:</label>
+            <select id="systemSoundSelect" class="select-input rounded-box">
+              <option value="system_adhan">نغمة الفجر الهادئة (النظام)</option>
+              <option value="system_chime">تنبيه صباحي ناعم (النظام)</option>
+            </select>
+          </div>
+
+          <div id="customFileBox" class="field-block" style="display:none;">
+            <label for="customAudioFile" class="file-pick-btn rounded-box">
+              اختيار ملف صوتي (جميع التنسيقات)
+            </label>
+            <input type="file" id="customAudioFile" accept="audio/*" style="display:none;" />
+            <div id="selectedFileName" class="hint-text">لم يتم اختيار ملف بعد</div>
+          </div>
+
+          <div class="row-between mt-14">
+            <div class="row-gap">
+              <input type="checkbox" id="vibrateEnabled" checked />
+              <label for="vibrateEnabled">تفعيل الاهتزاز</label>
+            </div>
+
+            <button id="btnPreviewSound" class="action-btn rounded-box">
+              ▶ استماع للصوت
+            </button>
+          </div>
+          <audio id="audioPlayer" preload="none"></audio>
+        </div>
+      </section>
+
+      <!-- التبويب الثالث: القبلة والأذكار -->
+      <section id="tab-qiblaAdhkar" class="tab-panel">
+        <div class="sub-tabs rounded-pill">
+          <button class="sub-tab-btn active" data-subtab="qibla">اتجاه القبلة</button>
+          <button class="sub-tab-btn" data-subtab="adhkar">الأذكار والتسبيح</button>
+        </div>
+
+        <!-- شق القبلة -->
+        <div id="subtab-qibla" class="subtab-content active">
+          <div class="panel-card rounded-card center-align">
+            <h2 class="section-title">بوصلة القبلة</h2>
+            <p class="section-sub" id="qiblaCityInfo">المدينة: الدار البيضاء</p>
+
+            <div class="compass-ring">
+              <div id="compassDial" class="compass-dial">
+                <div class="qibla-pointer">🕋</div>
+              </div>
+            </div>
+
+            <div id="qiblaAngleText" class="qibla-angle">--° من الشمال نحو القبلة</div>
+
+            <div class="row-gap center-justify mt-12">
+              <button id="btnCompassSensor" class="action-btn rounded-box">تفعيل حساس البوصلة</button>
+              <button id="btnRotateTest" class="secondary-btn rounded-box">تدوير يدوي</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- شق الأذكار -->
+        <div id="subtab-adhkar" class="subtab-content">
+          <div id="adhkarCategories" class="categories-strip"></div>
+          <div id="adhkarList" class="adhkar-list"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- القائمة الجانبية المنسدلة من اليسار -->
+  <div id="drawerBackdrop" class="backdrop" style="display:none;"></div>
+  <aside id="sideDrawer" class="side-drawer">
+    <div class="drawer-header">
+      <h3>القائمة</h3>
+      <button id="btnCloseDrawer" class="icon-btn rounded-box">✕</button>
+    </div>
+    <div class="drawer-menu">
+      <button id="menuSettings" class="drawer-item-btn rounded-box">⚙️ الإعدادات</button>
+      <button id="menuAbout" class="drawer-item-btn rounded-box">ℹ️ حول التطبيق</button>
+      <button id="menuShare" class="drawer-item-btn rounded-box">📤 شارك التطبيق</button>
+    </div>
+  </aside>
+
+  <!-- نافذة الإعدادات -->
+  <div id="settingsModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card rounded-card">
+      <div class="modal-header">
+        <h3>الإعدادات</h3>
+        <button class="close-modal icon-btn rounded-box" data-close="settingsModal">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- الموقع -->
+        <div class="setting-block">
+          <div class="setting-label">الموقع الجغرافي</div>
+          <div class="row-gap">
+            <button id="btnAutoGps" class="action-btn rounded-box flex-1">📍 تحديد تلقائي (GPS)</button>
+            <button id="btnManualCity" class="secondary-btn rounded-box flex-1">🏙️ تحديد يدوي</button>
+          </div>
+          <div id="gpsStatusText" class="hint-text mt-6"></div>
+        </div>
+
+        <!-- الثيم -->
+        <div class="setting-block">
+          <div class="setting-label">الثيم</div>
+          <div class="theme-choices">
+            <button class="chip-btn rounded-box" data-theme="dark">ليلي</button>
+            <button class="chip-btn rounded-box" data-theme="light">نهاري</button>
+            <button class="chip-btn rounded-box" data-theme="system">وفق النظام</button>
+          </div>
+        </div>
+
+        <!-- التوقيت المغربي -->
+        <div class="setting-block">
+          <div class="row-between">
+            <div>
+              <div class="setting-label">التوقيت الصيفي المغربي (+1 / +0)</div>
+              <div class="hint-text" id="dstStatusHint">مفعل: +1 (إلغاء التفعيل يجعل التوقيت +0)</div>
+            </div>
+            <label class="switch rounded-pill">
+              <input type="checkbox" id="dstPlusOneToggle" checked />
+              <span class="slider rounded-pill"></span>
+            </label>
+          </div>
+        </div>
+
+        <button type="button" class="secondary-btn rounded-box full-width-btn mt-14 close-modal" data-close="settingsModal">
+          إغلاق
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة اختيار المدينة يدوياً مع زر رجوع إلى الإعدادات -->
+  <div id="cityPickerModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card city-modal-card rounded-card">
+      <div class="modal-header">
+        <button id="btnBackToSettings" class="back-nav-btn rounded-box">→ رجوع</button>
+        <h3>اختر المدينة أو الإقليم</h3>
+        <button class="close-modal icon-btn rounded-box" data-close="cityPickerModal">✕</button>
+      </div>
+
+      <div class="search-box-wrap">
+        <input
+          type="text"
+          id="citySearchInput"
+          class="search-input rounded-box"
+          placeholder="ابحث عن مدينة أو إقليم..."
+          autocomplete="off"
+        />
+      </div>
+
+      <div id="citiesButtonsList" class="cities-grid"></div>
+    </div>
+  </div>
+
+  <!-- نافذة حول التطبيق -->
+  <div id="aboutModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card rounded-card center-align">
+      <div class="modal-header">
+        <h3>حول التطبيق</h3>
+        <button class="close-modal icon-btn rounded-box" data-close="aboutModal">✕</button>
+      </div>
+
+      <div class="about-content">
+        <img src="assets/logo.png" alt="شعار التطبيق" class="about-logo" onerror="this.style.display='none';" />
+        <h4 class="about-title-ar">منبه الصلاة المغربي</h4>
+        <div class="about-title-en">Moroccan Prayer Alarm</div>
+        <div class="about-version">الإصدار 1.0.0</div>
+
+        <p class="sadaqa-note">
+          صدقة جارية على والدتي (أم أنس) — أطال الله عمرها في الصالحات وبارك فيها.
+        </p>
+
+        <div class="developer-box rounded-box">
+          <div>المطور: <strong>Abdelaziz Maydoune</strong></div>
+          <a href="https://www.facebook.com/maydouneabdelaziz" target="_blank" rel="noopener noreferrer" class="fb-link rounded-pill">
+            صفحة المطور على فيسبوك
+          </a>
+        </div>
+
+        <button type="button" class="secondary-btn rounded-box full-width-btn mt-14 close-modal" data-close="aboutModal">
+          إغلاق
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة الدعاء المنبثقة (تغلق بزر تم الدعاء) -->
+  <div id="duaModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card rounded-card center-align">
+      <h3 class="dua-heading">دعاء لوالدتي</h3>
+      <p class="dua-text">
+        اللهم اغفر لوالدة صاحب هذا العمل واجعله دخرا لها يوم القيامة وصدقة في ميزان حسناتها خالصا لوجهك الكريم يا رب العالمين
+      </p>
+      <button id="btnConfirmDua" class="action-btn rounded-pill full-width-btn">
+        تم الدعاء
+      </button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
