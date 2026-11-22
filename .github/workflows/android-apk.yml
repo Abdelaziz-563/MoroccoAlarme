@@ -23,16 +23,18 @@ jobs:
 
       - name: Install Android SDK Command Line Tools
         run: |
-          mkdir -p $HOME/Android/Sdk/cmdline-tools/latest
-          wget -q https://dl.google.com/android/repository/commandlinetools-win-11076708_latest.zip -O /tmp/cmdline-tools.zip
+          mkdir -p $HOME/cmdline-tools
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/cmdline-tools.zip
           unzip -q /tmp/cmdline-tools.zip -d /tmp/cmdline-extract
-          mv /tmp/cmdline-extract/cmdline-tools/* $HOME/Android/Sdk/cmdline-tools/latest/
+          mv /tmp/cmdline-extract/cmdline-tools/* $HOME/cmdline-tools/
 
       - name: Accept Android Licenses and Install Packages
         env:
-          ANDROID_HOME: /home/runner/Android/Sdk
+          ANDROID_HOME: /home/runner/android-sdk
         run: |
-          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null
+          mkdir -p $ANDROID_HOME/cmdline-tools/latest
+          cp -r $HOME/cmdline-tools/* $ANDROID_HOME/cmdline-tools/latest/
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
       - name: Install Dependencies
@@ -46,7 +48,7 @@ jobs:
 
       - name: Build Debug APK
         env:
-          ANDROID_HOME: /home/runner/Android/Sdk
+          ANDROID_HOME: /home/runner/android-sdk
         run: |
           cd android
           chmod +x gradlew
